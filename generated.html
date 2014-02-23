@@ -1,0 +1,491 @@
+<html> 
+ <head> 
+ <meta charset="UTF-8" />
+<title>Canvas Test</title>
+
+ </head> 
+ 
+ <body > 
+ <canvas id="canvas" width="1000" height="600" style="border:1px solid red " Margin: 0 auto; Vertical-align: middle;></canvas> 
+
+ 
+ <div id="MyScore">
+</div>
+<div id ="MyLevel">
+</div>
+<div id ="MyLives">
+</div>
+  <script type="text/javascript"> 
+
+// NB run in firefox
+// All the varialbes need for the game
+ var canvas;
+ var count =0;
+ var count1 =0;
+ var count2 =0;
+ var countt=0;
+ var Lives=3;
+var ctx;
+var dx = 3;
+var dy = 6;
+var sdx = 0;
+var mx;
+var my;
+var sdy =0;
+var x = 460;
+var y = 480;
+var a=500;
+var b=570;
+var WIDTH = 900;
+var HEIGHT = 600;
+var x1=0, y1=0; 
+var dx1=35, dy1=35; 
+var myblocks = [];
+var myblocks1 = [];
+var myblocks2 = [];
+var Level = 1;
+var snd = new Audio("boom.wav");
+var snd1 = new Audio("bang.wav");
+var canvasMinX;
+var canvasMaxX;
+var init1 = 1;
+var ran=Math.floor(Math.random()*8)+1;
+canvas = document.getElementById("canvas");
+ctx = canvas.getContext("2d");
+
+function init() {
+
+
+
+ball = new setcircle(x,y,10,"purple");
+
+// push blocks adds each block to an array, there is a differnt array for each row of blocks
+pushblocks();
+// This is a button to start the game
+beginBtn.draw();
+
+	
+
+}
+
+function pushblocks(){
+var p=40;
+
+for (var i = 0; i < 10; i++) {
+//ran is a randomly generated number between 2-8 which will act as a bomb in the game
+if(i==ran){
+	myblocks1.push(new Shape(p,35,90,20,"black","bomb" ));
+	myblocks.push(new Shape(p,10,90,20,"#2E9AFE","block" ));
+	myblocks2.push(new Shape(p,60,90,20,"#B4045F","block" ));
+}else{
+myblocks.push(new Shape(p,10,90,20,"#2E9AFE","block" ));
+
+myblocks1.push(new Shape(p,35,90,20,"#58FA82","block" ));
+
+myblocks2.push(new Shape(p,60,90,20,"#B4045F","block" ));
+}
+p=p+91;
+
+}
+
+}
+
+
+function block(){
+
+for (i in myblocks) {
+	oblock = myblocks[i];
+	ctx.fillStyle = oblock.fill1;
+	ctx.fillRect(oblock.a,oblock.b,oblock.w,oblock.h);
+	
+}
+for (c in myblocks1) {
+	oblock1 = myblocks1[c];
+	ctx.fillStyle = oblock1.fill1;
+	ctx.fillRect(oblock1.a,oblock1.b,oblock1.w,oblock1.h);
+
+	
+}
+
+for (d in myblocks2) {
+	oblock2 = myblocks2[d];
+	ctx.fillStyle = oblock2.fill1;
+	ctx.fillRect(oblock2.a,oblock2.b,oblock2.w,oblock2.h);
+	
+
+}}
+
+
+ function movecircle(ball){
+	
+	ball.x+=dx; 
+ ball.y+=dy; 
+ if (ball.x<=0) 
+ dx=-dx; 
+ else if (ball.x>=980) 
+ dx=-dx; 
+ if (ball.y<=0) 
+ dy=-dy; 
+// else if (ball.y>=590) 
+// dy=-5; 
+ ctx.beginPath();
+ ctx.fillStyle = ball.fill;
+ ctx.arc(ball.x,ball.y,10,0,Math.PI*2, true);
+ ctx.fill();
+	
+
+
+}
+
+
+// colliosn detection 
+function isCollide(r, c){
+    
+	
+	var cx = Math.abs(c.x - r.a - r.w/2);
+    var xDist = r.w/2 + c.r;
+    if (cx > xDist)
+        return false;
+    var cy = Math.abs(c.y - r.b - r.h/2);
+    var yDist = r.h/2 + c.r;
+    if (cy > yDist)
+        return false;
+    if (cx <= r.w/2 || cy <= r.h/2)
+        return true;
+   
+}
+
+function setcircle(x,y,r,fill){
+
+	this.x = x;
+	this.y = y;
+	this.r = r;
+	this.fill = fill;
+}
+
+function Shape(a,b,w,h,fill,type){
+	
+	this.a = a;
+	this.b = b;
+	this.w = w;
+	this.h = h;
+	this.fill1 = fill;
+	this.type = type;
+}
+
+function doKeydown(evt){
+switch (evt.keyCode) {
+case 37:  /* Left arrow was pressed */
+if (a - dx1 > 0){
+a -= dx1;
+}
+break;
+case 39:  /* Right arrow was pressed */
+if (a + dx1 < WIDTH){
+a += dx1;
+}
+break;
+}
+//case 40;
+//ctx.fillStyle = "black";
+//ctx.fillRect = (300,300,100,100);
+//break;
+
+}
+function changedirection(ball){
+dy=-dy;
+
+
+
+
+
+
+}
+
+function update(){
+
+
+//check if ball hits paddle
+if(isCollide(paddel,ball)){
+changedirection(ball);
+snd.play();
+}
+//check if ball hits block has to be done for each array of blocks
+for (i in myblocks) {
+if(isCollide(myblocks[i],ball)){
+count++;
+countt++;
+changedirection(ball);
+//delete myblocks[i];
+delete myblocks[i];
+snd.play();
+
+}
+}
+for (i1 in myblocks1) {
+if(isCollide(myblocks1[i1],ball)){
+	
+	// if block is the bomb check if blocks around have been deleted, if they havent delete them
+	if(myblocks1[ran]==myblocks1[i1]){
+	count1 = count1+1;
+	countt++;
+	snd1.play();
+	delete myblocks1[ran];
+	
+	
+	if( myblocks1[ran-1] != null){
+	count1++;
+	countt++;
+	delete myblocks1[ran-1];
+	}
+    
+	
+	if( myblocks1[ran+1] != null){
+	count1++;
+	countt++;
+	delete myblocks1[ran+1];
+	}
+	
+	
+	if( myblocks[ran] != null){
+	count++;
+	countt++;
+	delete myblocks[ran];
+	}
+	
+	
+	if( myblocks2[ran] != null){
+	count2++;
+	countt++;
+	}
+	delete myblocks2[ran];
+	changedirection(ball);
+	}else{
+	count1 = count1+1;
+	countt++;
+changedirection(ball);
+delete myblocks1[i1];
+snd.play();
+}
+}}
+for (i2 in myblocks2) {
+
+if(isCollide(myblocks2[i2],ball)){
+count2++;
+countt++;
+changedirection(ball);
+delete myblocks2[i2];
+snd.play();
+}
+}}
+
+function rotate(shape, directon){
+
+		
+
+
+}
+
+// check if all bloacks have been deleted
+function blockcheck(){
+
+	if(count==10&&count2==10&&count1==10){
+	return true;
+	}
+	else return false;
+
+	
+}
+
+// increase speed after each level
+function increasespeed() {
+	dx = dx*1.2;
+	dy= dy*1.2;
+	Level++;
+	dx1 = dx1+10;
+	dy1 = dy1+10;
+	
+	}
+	
+restartBtn = {
+	w: 100,
+	h: 50,
+	x: 450,
+	y: 280,
+	
+	draw: function() {
+		ctx.strokeStyle = "purple";
+		ctx.lineWidth = "2";
+		ctx.strokeRect(this.x, this.y, this.w, this.h);
+		
+		ctx.font = "18px Arial, sans-serif";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillStlye = "purple";
+		ctx.fillText("Restart", 500, 300 );
+	}
+}
+
+beginBtn = {
+	w: 100,
+	h: 50,
+	x: 650,
+	y: 280,
+
+	draw: function(){
+		ctx.strokeStyle = "purple";
+		ctx.lineWidth = "2";
+		ctx.strokeRect(this.x, this.y, this.w, this.h);
+		
+		ctx.font = "18px Arial, sans-serif";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillStlye = "purple";
+		ctx.fillText("Begin", 690, 300 );
+	}
+}
+
+GameOver = {
+	w: 100,
+	h: 50,
+	x: 250,
+	y: 280,
+
+	draw: function(){
+		ctx.strokeStyle = "purple";
+		ctx.lineWidth = "2";
+		ctx.strokeRect(this.x, this.y, this.w, this.h);
+		
+		ctx.font = "18px Arial, sans-serif";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillStlye = "purple";
+		ctx.fillText("Game Over", 300, 300 );
+	}
+}
+
+
+
+//function trackPosition(e) {
+//	mouse.x = e.pageX;
+//	mouse.y = e.pageY;
+//}
+
+function btnClick(e) {
+	
+		// records the mouse location
+		mx = e.pageX,
+		my = e.pageY;
+			//if restart button click restart the game
+		if(mx >= restartBtn.x && mx <= restartBtn.x + restartBtn.w) {
+			dx = sdx;
+			dy = sdy;
+			init1 = 0;
+		}
+		// if begin button click call draw function
+		if(mx >= beginBtn.x && mx <= beginBtn.x + beginBtn.w)
+	{
+	return setInterval(draw, 10);
+}
+
+if(mx >= GameOver.x && mx <= GameOver.x + GameOver.w)
+	{
+
+		myblocks = [];
+myblocks1 = [];
+myblocks2 = [];
+	pushblocks();
+	Lives=3;
+	countt=0;
+	Level=0;
+	ball.x = 50;
+ball.y = 300;
+	dx=3;
+	dy=6;
+}
+
+
+}
+function DeathCheck(){
+
+// if ball id off screen 
+if(ball.y>610 ){
+Lives= Lives-1;
+
+ball.x = 50;
+ball.y = 300;
+if(dx<0){
+	dx = -dx;
+}
+sdx = dx;
+sdy = dy;
+dx=0;
+dy=0;
+
+}
+if (dx == 0)
+{
+	restartBtn.draw();
+} 
+}
+
+
+
+
+
+
+
+
+function draw(){
+//clear the canvas each time draw is called
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+// check if the ball is off screen
+DeathCheck();
+if(Lives == -1)
+{
+
+	dx=0;
+	dy=0;
+	restartBtn.clear;
+	GameOver.draw();
+}
+movecircle(ball);
+block();
+paddel = new Shape(a,b,100,20,"purple");
+ctx.fillStyle = paddel.fill1;
+ctx.fillRect(paddel.a,paddel.b,paddel.w,paddel.h);
+update();
+if(blockcheck()){
+	if(ball.y>=100){
+	myblocks = [];
+myblocks1 = [];
+myblocks2 = [];
+	pushblocks();
+	count2=0;
+	count1=0;
+	count=0;
+	increasespeed();
+	
+}
+
+}
+
+
+document.getElementById("MyScore").innerHTML = "Score: "+ countt;
+document.getElementById("MyLives").innerHTML = "Lives: " +Lives;
+document.getElementById("MyLevel").innerHTML = "Level: "+Level;
+
+
+}
+
+
+init();
+window.addEventListener('keydown',doKeydown,true);
+//canvas.addEventListener("mousemove", trackPosition, true);
+canvas.addEventListener("mousedown", btnClick, true);
+
+ </script> 
+ 
+
+ </body> 
+</html>
